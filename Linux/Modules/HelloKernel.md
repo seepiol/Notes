@@ -41,6 +41,7 @@ module_exit(hello_exit);
 ## MakeFile
 
 Make needs to run in the kernel source tree directly. It's something like this:
+
 ```makefile
 obj-m += hello.o
 
@@ -53,7 +54,7 @@ clean:
 ## The `print_pid` function
 In the example, the print_pid function, called by `module_init`, prints the **pid** (process id) of the kernel module. We access at this information using the `current`, contained in the file `asm/current.h`:
 
-```
+```c
 static __always_inline struct task_struct *get_current(void)
 {
 	return this_cpu_read_stable(current_task);
@@ -63,7 +64,7 @@ static __always_inline struct task_struct *get_current(void)
 ```
 as we can see, `current` is defined as a the function `get_current`, which returns a `task_struct` **struct**, fetched by the function `this_cpu_read_stable` with `current_task` as parameter.
 
-The `task_struct` struct is declared in [`linux/sched.h`](https://github.com/torvalds/linux/blob/ab159ac569fddf812c0a217d6dbffaa5d93ef88f/include/linux/sched.h#L649), while the function `this_cpu_read_stable` as a comment in `asm/percpu.h` describes, "*makes gcc load the percpu variable every time it is accessed while this_cpu_read_stable() allows the value to be cached. this_cpu_read_stable() is more efficient and can be used if its value is guaranteed to be valid across cpus.  The current users include get_current() and get_thread_info() both of which are actually per-thread variables implemented as per-cpu variables and thus stable for the duration of the respective task."
+The `task_struct` struct is declared in [`linux/sched.h`](https://github.com/torvalds/linux/blob/ab159ac569fddf812c0a217d6dbffaa5d93ef88f/include/linux/sched.h#L649), while the function `this_cpu_read_stable` as a comment in `asm/percpu.h` describes, " *makes gcc load the percpu variable every time it is accessed while this_cpu_read_stable() allows the value to be cached. this_cpu_read_stable() is more efficient and can be used if its value is guaranteed to be valid across cpus.  The current users include get_current() and get_thread_info() both of which are actually per-thread variables implemented as per-cpu variables and thus stable for the duration of the respective task.* "
 
 The important concept is that `task_struct` contains information about the process that is currently running, and in our program we use that in order to know the name and the id of the current process. But *which* is the current process?
 
